@@ -8,12 +8,14 @@ Instead of scrolling endlessly, just tell CineGenie what you feel like watching,
 ## 🚀 Features
 - 📝 **Prompt-based recommendations** – Type what you want (e.g., *"funny movies like Deadpool"*).  
 - 🎯 **Personalized results** – AI suggests movies matching your mood/genre/actor.  
-- 🔄 **Multiple options** – Get 5+ suggestions at once.  
-- 🌐 Simple **web app** built with react.  
+- 🔄 **Multiple suggestions** – Get 5+ movie recommendations at once.  
+- 🌐 **Full-stack app** – React frontend + Node.js backend powered by Gemini AI.  
 
 ---
 
 ## 🛠️ Tech Stack
-- **Frontend/UI:** React  
-- **Backend:** Node.js + Express
-- **Generative AI Model:** gemini-1.5-flash   
+- **Frontend/UI:** React (Axios for API calls)  
+- **Backend:** Node.js + Express  
+- **Generative AI Model:** Gemini 1.5 Flash (via Google Generative AI SDK)  
+
+
