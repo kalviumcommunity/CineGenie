@@ -17,5 +17,3 @@ Instead of scrolling endlessly, just tell CineGenie what you feel like watching,
 - **Frontend/UI:** React (Axios for API calls)  
 - **Backend:** Node.js + Express  
 - **Generative AI Model:** Gemini 1.5 Flash (via Google Generative AI SDK)  
-
-
