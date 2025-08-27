@@ -97,3 +97,33 @@ Format: JSON array only.
     res.status(500).json({ message: "Error generating one-shot response" });
   }
 };
+
+/**
+ * 🔹 MULTI-SHOT PROMPT
+ * Give multiple examples first → then user input
+ */
+exports.multiShot = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const systemPrompt = `
+You are CineGenie, an AI movie recommender.
+
+Example 1:
+User: Romantic dramas
+AI: [ { "title": "The Notebook", "year": "2004", "description": "A heartfelt romance about enduring love." } ]
+
+Example 2:
+User: Sci-fi space adventures
+AI: [ { "title": "Interstellar", "year": "2014", "description": "A visually stunning story about space exploration and love." } ]
+
+Now, recommend 5 movies for: "${prompt}".
+Format strictly as JSON array.
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    res.json({ response: result.response.text() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating multi-shot response" });
+  }
+};
