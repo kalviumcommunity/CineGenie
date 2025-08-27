@@ -68,3 +68,32 @@ Your role:
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+/**
+ * 🔹 ONE-SHOT PROMPT
+ * Provide one example → then user’s question
+ */
+exports.oneShot = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const systemPrompt = `
+You are CineGenie, an AI movie recommendation assistant.  
+
+Example:
+User: Suggest superhero comedy movies.
+AI: [
+  { "title": "Deadpool", "year": "2016", "description": "A funny, violent anti-hero film starring Ryan Reynolds." },
+  { "title": "Thor: Ragnarok", "year": "2017", "description": "A Marvel film with humor, action, and vibrant visuals." }
+]
+
+Now, suggest 5 movies for: "${prompt}"
+Format: JSON array only.
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    res.json({ response: result.response.text() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating one-shot response" });
+  }
+};
