@@ -1,9 +1,10 @@
 const express = require("express");
-const { getRecommendations } = require("../Controllers/geminiController");
+const { systemPrompt, zeroShot } = require("../Controllers/geminiController");
 
 const router = express.Router();
 
-// POST /api/gemini/recommend
-router.post("/recommend", getRecommendations);
+// POST /api/gemini/system-user
+router.post("/system-user", systemPrompt);
+router.post("/zero-shot", zeroShot);
 
 module.exports = router;
