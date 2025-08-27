@@ -127,3 +127,26 @@ Format strictly as JSON array.
     res.status(500).json({ message: "Error generating multi-shot response" });
   }
 };
+
+/**
+ * 🔹 DYNAMIC PROMPT
+ * Recommendations based on genre + mood
+ */
+exports.dynamicPrompt = async (req, res) => {
+  try {
+    const { genre, mood } = req.body;
+
+    if (!genre || !mood) {
+      return res.status(400).json({ message: "Genre and mood are required" });
+    }
+
+    let prompt = `You are CineGenie. Recommend 5 ${genre} movies for someone in a ${mood} mood.  
+Return strictly as JSON array.`;
+
+    const result = await model.generateContent(prompt);
+    res.json({ response: result.response.text() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating dynamic response" });
+  }
+};
