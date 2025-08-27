@@ -1,38 +1,70 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const systemPrompt = `
-You are CineGenie, an AI movie recommendation assistant.
-Role: Suggest movies tailored to the user’s request.
-Task: Recommend 5 movies based on mood, favorite actor, or genre.
-Format: Respond in JSON array with objects: { "title": "", "year": "", "description": "" }.
-Context: The user will provide prompts such as "funny superhero movies like Deadpool" or "romantic dramas for a weekend night". 
-Recommendations should be accurate, diverse, and engaging.
-`;
-
-const getRecommendations = async (req, res) => {
+/**
+ * 🎯 ZERO-SHOT PROMPT
+ * - User just asks without examples.
+ * - Model has to figure out how to recommend movies.
+ */
+exports.zeroShot = async (req, res) => {
   try {
-    const { prompt } = req.body;
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const { userQuery } = req.body;
 
-    const result = await model.generateContent([
-      { role: "system", content: systemPrompt },
-      { role: "user", content: `Recommend 5 movies for: ${prompt}` }
-    ]);
-
-    let recommendations;
-    try {
-      recommendations = JSON.parse(result.response.text());
-    } catch {
-      recommendations = [{ title: "Error", year: "", description: result.response.text() }];
+    if (!userQuery) {
+      return res.status(400).json({ message: "userQuery is required" });
     }
 
-    res.json({ recommendations });
+    const result = await model.generateContent(userQuery);
+
+    res.json({
+      success: true,
+      query: userQuery,
+      recommendations: result.response.text(),
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "AI recommendation failed" });
+    console.error("Zero-Shot Error:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-module.exports = { getRecommendations, systemPrompt };
+/**
+ * 🎯 SYSTEM + USER PROMPT
+ * - System sets the role (movie recommender AI).
+ * - User gives input (mood/genre/actor).
+ */
+exports.systemPrompt = async (req, res) => {
+  try {
+    const { userQuery } = req.body;
+
+    if (!userQuery) {
+      return res.status(400).json({ message: "userQuery is required" });
+    }
+
+    // System instruction
+    const systemPrompt = `
+You are CineGenie 🎬, an AI movie recommendation assistant.
+Your role:
+- Suggest movies based on mood, genre, or actor.
+- Provide 5 recommendations max.
+- For each movie, include: Title, Year, Short 1-line description.
+- Keep it fun, engaging, and easy to read.
+    `;
+
+    // Combine system + user
+    const finalPrompt = `${systemPrompt}\n\nUser Request: ${userQuery}`;
+
+    const result = await model.generateContent(finalPrompt);
+
+    res.json({
+      success: true,
+      query: userQuery,
+      recommendations: result.response.text(),
+    });
+  } catch (error) {
+    console.error("System+User Prompt Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
