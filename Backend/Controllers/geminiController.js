@@ -150,3 +150,29 @@ Return strictly as JSON array.`;
     res.status(500).json({ message: "Error generating dynamic response" });
   }
 };
+
+/**
+ * 🔹 CHAIN OF THOUGHT PROMPT
+ * Show reasoning steps → then final movie list
+ */
+exports.chainOfThought = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const systemPrompt = `
+You are CineGenie. Think step by step before suggesting movies.  
+Steps:
+1. Identify the genre/mood/actor in the request.
+2. Recall fitting movies.
+3. Select the top 5 most relevant.
+4. Present them in JSON array.
+
+User Request: "${prompt}"
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    res.json({ response: result.response.text() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating chain-of-thought response" });
+  }
+};
